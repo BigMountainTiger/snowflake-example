@@ -1,0 +1,3 @@
+PYTHONPATH="/home/song/Sandbox/snowflake-example/.python/libs"
+
+export PYTHONPATH

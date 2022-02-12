@@ -1,0 +1,11 @@
+python3.9 -m venv .env-3.9
+
+Python connector
+https://docs.snowflake.com/en/user-guide/python-connector.html
+
+DDL statements implicitly commit active transactions
+https://docs.snowflake.com/en/sql-reference/transactions.html
+
+pip install snowflake-connector-python
+pip install python-dotenv
+pip install autopep8
