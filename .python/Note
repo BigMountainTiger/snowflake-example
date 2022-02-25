@@ -8,4 +8,5 @@ https://docs.snowflake.com/en/sql-reference/transactions.html
 
 pip install snowflake-connector-python
 pip install python-dotenv
+pip install boto3
 pip install autopep8

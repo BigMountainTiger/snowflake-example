@@ -1,0 +1,11 @@
+#!/bin/bash
+
+file=${1}
+
+if [ -z "${file}" ]
+then
+    echo "Please provide a SQL file to run ..."
+    exit
+fi
+
+snowsql -f ${file}

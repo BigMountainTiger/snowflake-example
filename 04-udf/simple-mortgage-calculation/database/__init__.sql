@@ -1,0 +1,56 @@
+CREATE OR REPLACE FUNCTION FF(NEWCONFLOANLIMIT FLOAT,
+  FIRST_MTG_ORIGINATION_DATE DATE,
+  JUMBO_AVG_RATE FLOAT,
+  TOTAL_LOAN_PAYMENTS FLOAT,
+  ESTIMATED_MONTHLY_PAYMENT FLOAT,
+  NUMBER_MTG_PAYMENTS_REMAINING FLOAT,
+  ESTIMATED_UPB FLOAT)
+RETURNS DATE NULL
+LANGUAGE JAVASCRIPT
+AS $$
+
+  if ((!NEWCONFLOANLIMIT) ||
+     (!FIRST_MTG_ORIGINATION_DATE) ||
+     (!JUMBO_AVG_RATE) ||
+     (!TOTAL_LOAN_PAYMENTS) ||
+     (!ESTIMATED_MONTHLY_PAYMENT) ||
+     (!NUMBER_MTG_PAYMENTS_REMAINING) ||
+     (!ESTIMATED_UPB)) {
+
+    return null;
+  }
+
+  const calculate = () => {
+
+    const mr = 1.0 + JUMBO_AVG_RATE/100.0/12.0;
+
+    let PAYMENTS_REMAINING = NUMBER_MTG_PAYMENTS_REMAINING;
+    while (ESTIMATED_UPB > NEWCONFLOANLIMIT && PAYMENTS_REMAINING > 0) {
+      PAYMENTS_REMAINING = PAYMENTS_REMAINING - 1;
+      ESTIMATED_UPB = ESTIMATED_UPB * mr - ESTIMATED_MONTHLY_PAYMENT;
+    }
+
+    const months = parseInt(TOTAL_LOAN_PAYMENTS - PAYMENTS_REMAINING);
+    const conform_date = new Date(FIRST_MTG_ORIGINATION_DATE.getTime());
+    conform_date.setMonth(conform_date.getMonth() + months);
+    conform_date.setHours(0,0,0,0);
+
+    return conform_date;
+  };
+
+  try {
+
+    const conform_date = calculate();
+    return conform_date;
+  } 
+  catch (ex) {
+    return null;
+  }
+
+$$;
+
+SELECT FF(765600, '12/21/2020', 2.970, 360, 3317.90, 346, 770612) AS result;
+SELECT FF(765600, '9/29/2020', 3.140, 360, 4811.65, 343, 1088490) AS result;
+SELECT FF(765600, '3/10/2021', 2.940, 360, 3577.11, 349, 838494) AS result;
+
+DROP FUNCTION FF(FLOAT, DATE, FLOAT, FLOAT, FLOAT, FLOAT, FLOAT);

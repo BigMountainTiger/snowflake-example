@@ -1,4 +1,4 @@
-from . import env
+from env import env
 import snowflake.connector
 
 

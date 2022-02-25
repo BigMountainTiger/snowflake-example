@@ -6,6 +6,8 @@
     "**/CVS": true,
     "**/.DS_Store": true,
     "**/Thumbs.db": true,
+    "**/node_modules": true,
+    "**/cdk.out": true,
     "**/.env-3.9": true
   },
   "python.autoComplete.extraPaths": [

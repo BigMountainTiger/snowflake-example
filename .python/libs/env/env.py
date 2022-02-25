@@ -11,3 +11,6 @@ WAREHOUSE = os.getenv('WAREHOUSE')
 DATABASE = os.getenv('DATABASE')
 SCHEMA = os.getenv('SCHEMA')
 ROLE = os.getenv('ROLE')
+
+aws_access_key_id = os.getenv('aws_access_key_id')
+aws_secret_access_key = os.getenv('aws_secret_access_key')

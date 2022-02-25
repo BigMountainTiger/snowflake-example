@@ -1,0 +1,111 @@
+Resources:
+  SNOWFLAKEAPIGWStackSNOWFLAKEAPIINTEGRATIONROLE722B064C:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Statement:
+          - Action: sts:AssumeRole
+            Effect: Allow
+            Principal:
+              AWS: arn:aws:iam::343182919852:user/s5nm-s-v2st1538
+        Version: "2012-10-17"
+      Description: SNOWFLAKE-API-INTEGRATION-ROLE
+      RoleName: SNOWFLAKE-API-INTEGRATION-ROLE
+    Metadata:
+      aws:cdk:path: SNOWFLAKE-APIGW-Stack/SNOWFLAKE-APIGW-Stack-SNOWFLAKE-API-INTEGRATION-ROLE/Resource
+  SNOWFLAKEAPIGWStackSNOWFLAKEAPIINTEGRATIONROLEDefaultPolicy98714949:
+    Type: AWS::IAM::Policy
+    Properties:
+      PolicyDocument:
+        Statement:
+          - Action: "*"
+            Effect: Deny
+            Resource: "*"
+        Version: "2012-10-17"
+      PolicyName: SNOWFLAKEAPIGWStackSNOWFLAKEAPIINTEGRATIONROLEDefaultPolicy98714949
+      Roles:
+        - Ref: SNOWFLAKEAPIGWStackSNOWFLAKEAPIINTEGRATIONROLE722B064C
+    Metadata:
+      aws:cdk:path: SNOWFLAKE-APIGW-Stack/SNOWFLAKE-APIGW-Stack-SNOWFLAKE-API-INTEGRATION-ROLE/DefaultPolicy/Resource
+  SNOWFLAKEAPIGWStackSNOWFLAKEAPIINTEGRATIONLAMBDAROLE528996F0:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Statement:
+          - Action: sts:AssumeRole
+            Effect: Allow
+            Principal:
+              Service: lambda.amazonaws.com
+        Version: "2012-10-17"
+      RoleName: SNOWFLAKE-API-INTEGRATION-LAMBDA-ROLE
+    Metadata:
+      aws:cdk:path: SNOWFLAKE-APIGW-Stack/SNOWFLAKE-APIGW-Stack-SNOWFLAKE-API-INTEGRATION-LAMBDA-ROLE/Resource
+  SNOWFLAKEAPIGWStackSNOWFLAKEAPIINTEGRATIONLAMBDAROLEDefaultPolicy830EBC42:
+    Type: AWS::IAM::Policy
+    Properties:
+      PolicyDocument:
+        Statement:
+          - Action:
+              - logs:CreateLogGroup
+              - logs:CreateLogStream
+              - logs:PutLogEvents
+            Effect: Allow
+            Resource: "*"
+        Version: "2012-10-17"
+      PolicyName: SNOWFLAKEAPIGWStackSNOWFLAKEAPIINTEGRATIONLAMBDAROLEDefaultPolicy830EBC42
+      Roles:
+        - Ref: SNOWFLAKEAPIGWStackSNOWFLAKEAPIINTEGRATIONLAMBDAROLE528996F0
+    Metadata:
+      aws:cdk:path: SNOWFLAKE-APIGW-Stack/SNOWFLAKE-APIGW-Stack-SNOWFLAKE-API-INTEGRATION-LAMBDA-ROLE/DefaultPolicy/Resource
+  SNOWFLAKEAPIGWStackSNOWFLAKEECHOLAMBDA84D49753:
+    Type: AWS::Lambda::Function
+    Properties:
+      Code:
+        S3Bucket:
+          Fn::Sub: cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}
+        S3Key: 697cc5bb3d520ac5676c20a5f032d793de5c067c55e9c947697a42f5519714b2.zip
+      Role:
+        Fn::GetAtt:
+          - SNOWFLAKEAPIGWStackSNOWFLAKEAPIINTEGRATIONLAMBDAROLE528996F0
+          - Arn
+      FunctionName: SNOWFLAKE-ECHO-LAMBDA
+      Handler: index.handler
+      Runtime: nodejs14.x
+    DependsOn:
+      - SNOWFLAKEAPIGWStackSNOWFLAKEAPIINTEGRATIONLAMBDAROLEDefaultPolicy830EBC42
+      - SNOWFLAKEAPIGWStackSNOWFLAKEAPIINTEGRATIONLAMBDAROLE528996F0
+    Metadata:
+      aws:cdk:path: SNOWFLAKE-APIGW-Stack/SNOWFLAKE-APIGW-Stack-SNOWFLAKE-ECHO-LAMBDA/Resource
+      aws:asset:path: /home/song/Sandbox/snowflake-example/00-infrastructure/aws-cdk-apigw/lambdas/echo-lambda
+      aws:asset:is-bundled: false
+      aws:asset:property: Code
+  SNOWFLAKEAPIGWStackSNOWFLAKEECHOLAMBDAApiAccessPermissionB8A31D94:
+    Type: AWS::Lambda::Permission
+    Properties:
+      Action: lambda:InvokeFunction
+      FunctionName:
+        Fn::GetAtt:
+          - SNOWFLAKEAPIGWStackSNOWFLAKEECHOLAMBDA84D49753
+          - Arn
+      Principal: apigateway.amazonaws.com
+    Metadata:
+      aws:cdk:path: SNOWFLAKE-APIGW-Stack/SNOWFLAKE-APIGW-Stack-SNOWFLAKE-ECHO-LAMBDA/ApiAccessPermission
+Parameters:
+  BootstrapVersion:
+    Type: AWS::SSM::Parameter::Value<String>
+    Default: /cdk-bootstrap/hnb659fds/version
+    Description: Version of the CDK Bootstrap resources in this environment, automatically retrieved from SSM Parameter Store. [cdk:skip]
+Rules:
+  CheckBootstrapVersion:
+    Assertions:
+      - Assert:
+          Fn::Not:
+            - Fn::Contains:
+                - - "1"
+                  - "2"
+                  - "3"
+                  - "4"
+                  - "5"
+                - Ref: BootstrapVersion
+        AssertDescription: CDK bootstrap stack version 6 required. Please run 'cdk bootstrap' with a recent version of the CDK CLI.
+
