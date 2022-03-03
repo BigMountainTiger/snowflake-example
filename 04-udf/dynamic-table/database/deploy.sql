@@ -1,6 +1,9 @@
+CREATE OR REPLACE FILE FORMAT MLG_SNOWFLAKE.UTILITY.CSV_WHOLE_LINE TYPE = 'csv';
+
 CREATE or REPLACE PROCEDURE CREATE_TABLE_FROM_S3(TABLE_NAME VARCHAR, FILE_PATH VARCHAR)
 RETURNS VARCHAR NOT NULL
 LANGUAGE javascript
+EXECUTE AS CALLER
 AS
 $$
     const st = snowflake.createStatement;
@@ -8,7 +11,7 @@ $$
     const columns = (()=> {
       const header_line = (() => {
         const rs = st({sqlText: `SELECT T.$1 FROM ${FILE_PATH}
-          (FILE_FORMAT => CSV_WHOLE_LINE) T LIMIT 1;`}).execute();
+          (FILE_FORMAT => MLG_SNOWFLAKE.UTILITY.CSV_WHOLE_LINE) T LIMIT 1;`}).execute();
         rs.next();
 
         return rs.getColumnValue(1);
@@ -31,7 +34,9 @@ $$
           s = `C_${s}`;
         }
 
-        return s || `COLUMN_NO_${i}`;
+        s = s || `COLUMN_NO_${i}`;
+
+        return s.toUpperCase();
       };
 
       for (let i = 0; i < columns.length; i++) {
@@ -39,7 +44,7 @@ $$
         columns[i] = `\t${standardize_column(column, i+1)} VARCHAR`;
       }
 
-      return `CREATE OR REPLACE TABLE ${TABLE_NAME} (\n${columns.join(',\n')}\n);`;
+      return `CREATE TABLE ${TABLE_NAME} (\n${columns.join(',\n')}\n);`;
     })();
     
     return (() => {
@@ -50,4 +55,3 @@ $$
     })();
 $$;
 
-CALL CREATE_TABLE_FROM_S3('AAAA', '@S3_HUGE_HEAD_LI_2022_STAGE/aaaa.txt');
