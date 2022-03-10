@@ -1,0 +1,6 @@
+#!/bin/bash
+
+SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
+
+${SCRIPT_DIR}/__init__
+snowsql -f ${SCRIPT_DIR}/../database/__test_load_full_replace__.sql

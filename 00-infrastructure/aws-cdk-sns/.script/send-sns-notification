@@ -1,0 +1,7 @@
+#!/bin/bash
+
+ARN="arn:aws:sns:us-east-1:275118158658:SNOWFLAKE-SNS-Stack-SNOWFLAKESNSStackTOPICC3902063-1MXBQMP8KUTB9"
+
+aws sns publish --profile 2022 --region us-east-1 \
+  --topic-arn ${ARN} \
+  --message "This is a test message"

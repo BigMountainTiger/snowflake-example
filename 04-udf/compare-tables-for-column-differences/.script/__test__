@@ -1,0 +1,4 @@
+#!/bin/bash
+
+.script/__init__
+snowsql -f database/__test__.sql
